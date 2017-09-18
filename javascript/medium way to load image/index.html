@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="description" content="description">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>medium way to load image</title>
+</head>
+<style>
+.placeholder {
+  background-color: #f6f6f6;
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+}
+
+.placeholder img {
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: opacity 1s linear;
+}
+
+.placeholder img.loaded {
+  opacity: 1;
+}
+
+.img-small {
+  filter: blur(50px);
+  /* this is needed so Safari keeps sharp edges */
+  transform: scale(1);
+}
+
+.media {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.media .media-figure {
+  width: 25%;
+  margin-right: 2%;
+  max-width: 200px;
+  min-width: 100px;
+}
+
+.intrinsic {
+  display: block;
+  position: relative;
+  height: 0;
+  width: 100%;
+  padding-top: 100%;
+  background: #f0f0f0;
+}
+.intrinsic.intrinsic--square {
+  padding-top: 100%;
+}
+.intrinsic.intrinsic--4x3 {
+  padding-top: 75%;
+}
+.intrinsic.intrinsic--16x9 {
+  padding-top: 56.25%;
+}
+.intrinsic .intrinsic-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#anim {
+  position:absolute;
+  left:0px;
+  width:150px;
+  height:150px;
+  background: blue;
+  font-size: larger;
+  color: white;
+  border-radius: 10px;
+  padding: 1em;
+}
+
+</style>
+<body>
+  <div class="placeholder" data-large="https://source.unsplash.com/random/300">
+    <img src="https://source.unsplash.com/random/20" alt="小图" class="img-small">
+    <div style="padding-bottom: 36.6%;"></div>
+  </div>
+
+  <div class="media">
+  <div class="media-figure">
+    <picture class="intrinsic intrinsic--square">
+        <source media="(min-width: 500px)" srcset="http://www.fillmurray.com/600/600">
+        <img alt="" srcset="http://www.fillmurray.com/300/300" class="intrinsic-item">
+    </picture>
+  </div>
+</div>
+<!-- <div id="anim">点击运行动画</div>  -->
+
+<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+<script>
+  window.onload = function(){
+    var placeholder = document.querySelector('.placeholder'),
+        small = placeholder.querySelector('.img-small')
+
+    // 1:load small images and show it
+    var img = new Image();
+    img.src = small.src;
+    img.onload = function(){
+      small.classList.add('loaded');
+    };
+
+    // 2:load large image
+    var imgLarge = new Image();
+    imgLarge.src = placeholder.dataset.large;
+    imgLarge.onload = function(){
+      imgLarge.classList.add('loaded');
+    };
+
+    placeholder.appendChild(imgLarge);
+
+  }
+  window.requestAnimationFrame = (function(){
+    return  window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(/* function FrameRequesCallback */ callback, /* DOMElement Element */ element){
+              window.setTimeout(callback, 1000 / 60);
+            };
+  })();
+
+  var elem = document.getElementById("anim");
+
+  var startTime = undefined;
+
+  function render(time) {
+
+    if(time == undefined) 
+      time = Date.now();
+    if(startTime === undefined)
+      startTime = time;
+
+
+    elem.style.left = ((time - startTime)/10 % 500) + "px";
+
+  }
+
+
+  elem.onclick = function() {
+
+    (function animloop(){
+      render();
+      requestAnimationFrame(animloop);
+    })();
+  }
+
+</script>
+</body>
+</html>
